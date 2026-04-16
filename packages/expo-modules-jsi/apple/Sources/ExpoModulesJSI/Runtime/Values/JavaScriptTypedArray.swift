@@ -61,6 +61,15 @@ public struct JavaScriptTypedArray: ~Copyable {
    */
   public let length: Int
 
+  // MARK: - Conversions
+
+  public func asValue() -> JavaScriptValue {
+    guard let runtime else {
+      FatalError.runtimeLost()
+    }
+    return JavaScriptValue(runtime, expo.valueFromTypedArray(runtime.pointee, pointee))
+  }
+
   // MARK: - Providing JavaScriptObject API
 
   public func getProperty(_ name: String) -> JavaScriptValue {

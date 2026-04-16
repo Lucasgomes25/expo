@@ -264,6 +264,12 @@ symlink_dependencies() {
 
 # --- Main ---
 
+if [[ -n "${PODS_ROOT:-}" ]]; then
+  # Resolve to an absolute path so symlinks and the build hash are stable
+  # regardless of whether PODS_ROOT was passed as relative or absolute.
+  PODS_ROOT="$(cd "$PODS_ROOT" && pwd)"
+fi
+
 if [[ "$CLEAN" == true ]]; then
   rm -rf "$XCFRAMEWORK_PATH" "$SLICES_DIR"
   log "Cleaned existing xcframework and staged slices"
