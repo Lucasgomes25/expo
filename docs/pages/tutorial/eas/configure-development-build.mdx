@@ -1,3 +1,138 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity } from 'react-native';
+import * as Linking from 'expo-linking';
+
+export default function App() {
+  const [cliente, setCliente] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [servico, setServico] = useState('');
+  const [agenda, setAgenda] = useState([]);
+
+  const servicos = [
+    "Lavagem Externa",
+    "Lavagem Completa",
+    "Limpeza Detalhada",
+    "Higienização Interna",
+    "Limpeza e Hidratação em Bancos de Couro",
+    "Revitalização de Faróis",
+    "Polimento de Pintura"
+  ];
+
+  const adicionarAgendamento = () => {
+    if (cliente && telefone && servico) {
+      setAgenda([...agenda, { cliente, telefone, servico, status: "Agendado" }]);
+      setCliente('');
+      setTelefone('');
+      setServico('');
+    }
+  };
+
+  const atualizarStatus = (index, novoStatus) => {
+    const novaAgenda = [...agenda];
+    novaAgenda[index].status = novoStatus;
+
+    // Enviar mensagem via WhatsApp
+    const mensagem = `Olá ${novaAgenda[index].cliente}, seu veículo está com status: ${novoStatus}.`;
+    Linking.openURL(`https://wa.me/${novaAgenda[index].telefone}?text=${encodeURIComponent(mensagem)}`);
+
+    setAgenda(novaAgenda);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Lucas Gomes - Estética Automotiva</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nome do Cliente"
+        value={cliente}
+        onChangeText={setCliente}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Telefone (com DDD)"
+        value={telefone}
+        onChangeText={setTelefone}
+        keyboardType="phone-pad"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Serviço"
+        value={servico}
+        onChangeText={setServico}
+      />
+
+      <Button title="Agendar Cliente" onPress={adicionarAgendamento} />
+
+      <FlatList
+        data={agenda}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <View style={styles.card}>
+            <Text style={styles.cardText}>{item.cliente} - {item.servico}</Text>
+            <Text>Status: {item.status}</Text>
+            <View style={styles.buttons}>
+              <TouchableOpacity onPress={() => atualizarStatus(index, "Agendado")}>
+                <Text style={styles.btn}>Agendado</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => atualizarStatus(index, "Limpeza Iniciada")}>
+                <Text style={styles.btn}>Iniciada</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => atualizarStatus(index, "Limpeza Concluída")}>
+                <Text style={styles.btn}>Concluída</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#111',
+    padding: 20,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#ff6600',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: '#222',
+    color: '#fff',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  card: {
+    backgroundColor: '#1c1c1c',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  cardText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  btn: {
+    backgroundColor: '#0066ff',
+    color: '#fff',
+    padding: 8,
+    borderRadius: 5,
+    textAlign: 'center',
+  }
+});
 ---
 title: Configure a development build in cloud
 sidebar_title: Configure development build
